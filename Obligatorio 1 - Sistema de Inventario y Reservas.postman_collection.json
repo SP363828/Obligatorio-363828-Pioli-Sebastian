@@ -1,0 +1,2667 @@
+{
+  "info": {
+    "_postman_id": "b0bc6633-5689-4b00-a07b-626f4e16fdd5",
+    "name": "Obligatorio 1 - Sistema de Inventario y Reservas Copy",
+    "description": "Coleccion completa de la API. Usa la variable de entorno prod_base_url, que apunta a la API publicada en Vercel.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52815979",
+    "_collection_link": "https://go.postman.co/collection/52815979-b0bc6633-5689-4b00-a07b-626f4e16fdd5?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registro - datos invalidos (sin password)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Devuelve el error de validacion\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"userinvalido\",\n  \"email\": \"invalido@test.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Falta password y passwordRepeat, Joi debe rechazarlo."
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - exitoso (auto-login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Devuelve usuario y token (auto-login)\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('usuario');",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "pm.collectionVariables.set(\"userId\", jsonData.usuario.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuarioplus01\",\n  \"email\": \"usuarioplus01@test.com\",\n  \"password\": \"Password123\",\n  \"passwordRepeat\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Usuario nuevo, plan plus por defecto. Guarda el token para las siguientes requests."
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - usuario duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuarioplus01\",\n  \"email\": \"usuarioplus01@test.com\",\n  \"password\": \"Password123\",\n  \"passwordRepeat\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Mismo username/email que la request anterior -> 409 Conflict."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - exitoso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('usuario');",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuarioplus01\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - credenciales invalidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuarioplus01\",\n  \"password\": \"clave-incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - admin (seed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"adminToken\", jsonData.token);",
+                  "pm.test(\"El usuario logueado es admin\", function () {",
+                  "    pm.expect(jsonData.usuario.rol).to.eql('admin');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Requiere el usuario admin precargado por el seed (src/scripts/seed.js)."
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil (me) - con token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('usuario');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/auth/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil (me) - sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/auth/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Registro, login y perfil. Rutas publicas."
+    },
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Crear categoria - sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector\",\n  \"description\": \"Proyectores para salas de reunion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoria - usuario no admin (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector\",\n  \"description\": \"Proyectores para salas de reunion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            },
+            "description": "usuarioplus01 no es admin, admin.middleware debe bloquear."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoria - Proyector (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"categoryId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector\",\n  \"description\": \"Proyectores para salas de reunion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoria - Kit Zoom (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"categoryIdZoom\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kit Zoom\",\n  \"description\": \"Kit de videoconferencia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoria - TV (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"categoryIdTV\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TV\",\n  \"description\": \"Televisores para presentaciones\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar categorias (paginado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category?page=1&limit=10",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar categorias - filtro por nombre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Todos los resultados matchean el filtro\", function () {",
+                  "    jsonData.data.forEach(function (c) {",
+                  "        pm.expect(c.name.toLowerCase()).to.include('proy');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category?name=proy",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "proy"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener categoria por id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category/{{categoryId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category",
+                "{{categoryId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar categoria (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector\",\n  \"description\": \"Proyectores portatiles y fijos\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category/{{categoryId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category",
+                "{{categoryId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category/64b000000000000000000000",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category",
+                "64b000000000000000000000"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "CRUD de categorias. Alta/edicion/borrado solo admin."
+    },
+    {
+      "name": "Recursos",
+      "item": [
+        {
+          "name": "Crear recurso - categoria inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector Epson X200\",\n  \"stock\": 1,\n  \"category\": \"64b000000000000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear recurso - Proyector (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "    pm.expect(jsonData).to.have.property('stock');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"resourceId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector Epson X200\",\n  \"description\": \"\",\n  \"stock\": 1,\n  \"category\": \"{{categoryId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear recurso - Kit Zoom (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"resourceIdZoom\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kit Zoom Logitech\",\n  \"stock\": 1,\n  \"category\": \"{{categoryIdZoom}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear recurso - TV (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"resourceIdTV\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TV Samsung 55\",\n  \"stock\": 1,\n  \"category\": \"{{categoryIdTV}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar recursos - filtro por categoria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/recursos?category={{categoryId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener recurso por id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/recursos/{{resourceId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos",
+                "{{resourceId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar recurso (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proyector Epson X200\",\n  \"stock\": 1,\n  \"category\": \"{{categoryId}}\",\n  \"status\": \"available\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos/{{resourceId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos",
+                "{{resourceId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear recurso descartable (para borrar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"resourceDescartableId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Recurso a borrar\",\n  \"stock\": 1,\n  \"category\": \"{{categoryId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar recurso descartable (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/recursos/{{resourceDescartableId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos",
+                "{{resourceDescartableId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "CRUD de recursos (equipos reservables). Alta/edicion/borrado solo admin."
+    },
+    {
+      "name": "Reservas",
+      "item": [
+        {
+          "name": "Crear reserva - sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:00\"\n  ],\n  \"fechaInicio\": \"2026-12-01\",\n  \"fechaFin\": \"2026-12-01\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear reserva - exitosa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_id');",
+                  "    pm.expect(jsonData).to.have.property('resources');",
+                  "    pm.expect(jsonData).to.have.property('bloques');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"reservationId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:00\"\n  ],\n  \"fechaInicio\": \"2026-12-01\",\n  \"fechaFin\": \"2026-12-01\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear reserva - sin disponibilidad (mismo recurso/bloque/fecha)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:00\"\n  ],\n  \"fechaInicio\": \"2026-12-01\",\n  \"fechaFin\": \"2026-12-01\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "description": "El recurso tiene stock 1 y ese bloque/fecha ya esta ocupado por la request anterior."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar mis reservas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"Todas las reservas son del usuario logueado\", function () {",
+                  "    var userId = pm.collectionVariables.get(\"userId\");",
+                  "    jsonData.data.forEach(function (r) {",
+                  "        pm.expect(r.user).to.eql(userId);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener reserva por id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/reservas/{{reservationId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reservationId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - segundo usuario (para probar BOLA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token2\", jsonData.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuarioplus02\",\n  \"email\": \"usuarioplus02@test.com\",\n  \"password\": \"Password123\",\n  \"passwordRepeat\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver reserva ajena (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/reservas/{{reservationId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reservationId}}"
+              ]
+            },
+            "description": "usuarioplus02 intenta ver una reserva de usuarioplus01."
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar reserva ajena (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/reservas/{{reservationId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reservationId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Editar reserva propia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:30\"\n  ],\n  \"fechaInicio\": \"2026-12-01\",\n  \"fechaFin\": \"2026-12-01\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas/{{reservationId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reservationId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar (borrar) reserva propia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/reservas/{{reservationId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas",
+                "{{reservationId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Alta/consulta/edicion/baja de reservas. Dueno o admin unicamente."
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Cambiar plan - sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/users/me/plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "plan"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Cambio de plan propio."
+    },
+    {
+      "name": "Flujos",
+      "item": [
+        {
+          "name": "Limite plan plus - reserva 1 de 4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"08:00\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limite plan plus - reserva 2 de 4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"08:30\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limite plan plus - reserva 3 de 4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:00\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limite plan plus - reserva 4 de 4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"09:30\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limite plan plus - reserva 5 rechazada (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"10:00\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "description": "usuarioplus02 ya tiene 4 combinaciones recurso+horario activas."
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar a premium",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Respuesta tiene la forma esperada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('usuario');",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.test(\"El plan nuevo es premium\", function () {",
+                  "    pm.expect(jsonData.usuario.plan).to.eql('premium');",
+                  "});",
+                  "pm.collectionVariables.set(\"token2\", jsonData.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/users/me/plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "plan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Limite plan - reserva 5 ahora si (premium)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resources\": [\n    \"{{resourceId}}\"\n  ],\n  \"bloques\": [\n    \"10:00\"\n  ],\n  \"fechaInicio\": \"2026-12-05\",\n  \"fechaFin\": \"2026-12-05\",\n  \"tipoRecurrencia\": \"unica\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/reservas",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "description": "Con premium ya no aplica el limite de 4."
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar a premium - ya era premium (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/users/me/plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "plan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria con recurso - crear categoria descartable (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"categoryDescartableId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Categoria Descartable\",\n  \"description\": \"Para probar la restriccion de borrado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/category",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria con recurso - crear recurso en esa categoria (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"resourceEnCategoriaDescartableId\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Recurso en categoria descartable\",\n  \"stock\": 1,\n  \"category\": \"{{categoryDescartableId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/recursos",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria con recurso - intentar borrar categoria (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category/{{categoryDescartableId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category",
+                "{{categoryDescartableId}}"
+              ]
+            },
+            "description": "No debe permitir borrar una categoria con Recursos asociados."
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria con recurso - borrar el recurso primero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/recursos/{{resourceEnCategoriaDescartableId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "recursos",
+                "{{resourceEnCategoriaDescartableId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Categoria con recurso - ahora si se puede borrar (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code es 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/category/{{categoryDescartableId}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "category",
+                "{{categoryDescartableId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Flujos de punta a punta: limite de plan plus->premium, y restriccion de borrado de categoria con recursos asociados."
+    },
+    {
+      "name": "Traduccion",
+      "item": [
+        {
+          "name": "Traducir a Ingles",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Sala de reuniones\",\n  \"target\": \"en\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/translate",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "translate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Traducir a Portugues",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Laboratorio de informatica\",\n  \"target\": \"pt\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/translate",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "translate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Traducir a Frances",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Proyector multimedia\",\n  \"target\": \"fr\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/translate",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "translate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Texto faltante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target\": \"en\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prod_base_url}}/translate",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "translate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Integracion con API externa de traduccion."
+    },
+    {
+      "name": "IA Generativa",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "token2",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "categoryIdZoom",
+      "value": ""
+    },
+    {
+      "key": "categoryIdTV",
+      "value": ""
+    },
+    {
+      "key": "categoryDescartableId",
+      "value": ""
+    },
+    {
+      "key": "resourceId",
+      "value": ""
+    },
+    {
+      "key": "resourceIdZoom",
+      "value": ""
+    },
+    {
+      "key": "resourceIdTV",
+      "value": ""
+    },
+    {
+      "key": "resourceDescartableId",
+      "value": ""
+    },
+    {
+      "key": "resourceEnCategoriaDescartableId",
+      "value": ""
+    },
+    {
+      "key": "reservationId",
+      "value": ""
+    }
+  ]
+}
