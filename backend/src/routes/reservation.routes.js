@@ -11,11 +11,13 @@ const {
 } = require('../controllers/reservations.controller');
 
 const payloadMiddleware = require('../middlewares/payload.middleware');
+const queryMiddleware = require('../middlewares/query.middleware');
 const reservationSchema = require('../models/schemas/reservation.schema');
+const reservationQuerySchema = require('../models/schemas/reservationQuery.schema');
 
 // La autenticación se aplica en routes/index.js; el controlador verifica el acceso.
 
-router.get('/', getAllReservationsController);
+router.get('/', queryMiddleware(reservationQuerySchema), getAllReservationsController);
 
 router.get('/:id', getReservationController);
 

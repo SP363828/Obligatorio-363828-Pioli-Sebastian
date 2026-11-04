@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Modo oscuro controlado por la clase .dark en <html> (ver ThemeToggle). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Tokens de diseño inspirados en la identidad de FADU (www.fadu.edu.uy):
+  base blanco/negro, grises fríos, tarjetas de color plano y tipografías DM Sans / DM Mono.
+  @theme hace que Tailwind genere clases como bg-brand-lima, text-ink-muted, font-mono, etc.
+*/
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+
+  --color-ink: #000000;
+  --color-ink-soft: #35415b;
+  --color-ink-muted: #646464;
+  --color-paper: #ffffff;
+  --color-paper-alt: #f2f4f7;
+  --color-line: #e3e7f0;
+
+  --color-night: #0f1115;
+  --color-night-card: #1a1d24;
+  --color-night-line: #2a2f3a;
+
+  --color-brand-naranja: #fb6435;
+  --color-brand-lima: #def294;
+  --color-brand-rosa: #ffbeef;
+  --color-brand-celeste: #baeeff;
+  --color-brand-menta: #76ebb3;
+  --color-brand-azul: #5584ff;
+  --color-brand-lavanda: #d3abfd;
+  --color-brand-amarillo: #ffd85a;
+}
+
+/* Clases reutilizables de la app. En el mismo layer, la que está más abajo gana. */
+@layer components {
+  .card { @apply rounded-xl border border-line bg-paper p-5 dark:border-night-line dark:bg-night-card; }
+
+  .input { @apply w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm outline-none transition placeholder:text-ink-muted/70 focus:border-ink focus:ring-2 focus:ring-ink/10 dark:border-night-line dark:bg-night dark:focus:border-white dark:focus:ring-white/10; }
+  .input-error { @apply border-brand-naranja focus:border-brand-naranja focus:ring-brand-naranja/20; }
+  .label { @apply mb-1.5 block text-sm font-medium text-ink-soft dark:text-slate-300; }
+  .field-error { @apply mt-1 text-xs font-medium text-[#c2410c] dark:text-brand-naranja; }
+
+  .btn, .btn-primary, .btn-secondary, .btn-danger, .btn-accent, .btn-ghost {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-azul disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  /* Negro sobre blanco (se invierte en oscuro), como los botones de FADU */
+  .btn-primary { @apply bg-ink text-paper hover:bg-ink-soft dark:bg-paper dark:text-ink dark:hover:bg-brand-lima; }
+  /* Naranja FADU con texto negro: blanco sobre #fb6435 no llega al contraste AA */
+  .btn-accent { @apply bg-brand-naranja text-ink hover:brightness-95; }
+  .btn-secondary { @apply border border-line bg-paper text-ink hover:bg-paper-alt dark:border-night-line dark:bg-night-card dark:text-slate-100 dark:hover:bg-night-line; }
+  .btn-ghost { @apply text-ink-soft hover:bg-paper-alt dark:text-slate-300 dark:hover:bg-night-line; }
+  .btn-danger { @apply border border-[#c2410c]/30 bg-paper text-[#c2410c] hover:bg-[#c2410c] hover:text-paper dark:border-brand-naranja/40 dark:bg-transparent dark:text-brand-naranja dark:hover:bg-brand-naranja dark:hover:text-ink; }
+  .btn-sm { @apply px-3.5 py-1.5 text-xs; }
+  .btn-icon { @apply p-2; }
+
+  /* Etiquetas en mono y mayúsculas, como "GRADO / MAESTRÍA" en FADU */
+  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] font-medium tracking-wide uppercase; }
+  .eyebrow { @apply font-mono text-xs tracking-widest text-ink-muted uppercase dark:text-slate-400; }
+}
+
+body { @apply bg-paper-alt font-sans text-ink antialiased dark:bg-night dark:text-slate-100; }

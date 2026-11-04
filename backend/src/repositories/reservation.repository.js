@@ -1,8 +1,9 @@
 const Reservation = require('../models/reservation.model');
 
 // Consultas paginadas para el listado.
-function findReservations(filter = {}, { skip = 0, limit = 10 } = {}) {
-  return Reservation.find(filter).skip(skip).limit(limit);
+// _id desempata: sin un orden total, skip/limit puede repetir u omitir reservas entre páginas.
+function findReservations(filter = {}, { skip = 0, limit = 10, sort = { fechaInicio: 1 } } = {}) {
+  return Reservation.find(filter).sort({ ...sort, _id: 1 }).skip(skip).limit(limit);
 }
 
 function countReservations(filter = {}) {

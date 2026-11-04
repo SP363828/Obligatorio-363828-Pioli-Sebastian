@@ -8,6 +8,10 @@ function countResources(filter = {}) {
   return Resource.countDocuments(filter);
 }
 
+function findResourceIdsByName(regex) {
+  return Resource.find({ name: regex }).distinct('_id');
+}
+
 function findResourceById(id) {
   return Resource.findById(id);
 }
@@ -31,6 +35,7 @@ function removeResource(id) {
 module.exports = {
   findResources,
   countResources,
+  findResourceIdsByName,
   findResourceById,
   findByCategoryId,
   addResource,

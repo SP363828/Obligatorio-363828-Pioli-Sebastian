@@ -11,7 +11,7 @@ class AiController {
           error: 'La descripción es obligatoria',
         });
       }
-      const resources = await findResources({ status: 'available' }, {});
+      const resources = await findResources({ status: 'available' }, { limit: 50 });
       if (!resources || resources.length === 0) {
         return res.status(404).json({
           error: 'No hay recursos disponibles',

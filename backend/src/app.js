@@ -27,6 +27,9 @@ if (missingEnvVars.length > 0) {
 
 const app = express();
 
+// Vercel está delante de la app: sin esto todos los usuarios compartirían la IP del proxy.
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 const allowedOrigins = (process.env.CORS_ORIGIN || '*')

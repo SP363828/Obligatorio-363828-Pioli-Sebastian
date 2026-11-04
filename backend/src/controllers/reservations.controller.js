@@ -5,27 +5,22 @@ const {
     removeReservation,
 } = require('../repositories/reservation.repository');
 
-const { crearReserva, actualizarReserva } = require('../services/reservation.service');
+const {
+    crearReserva,
+    actualizarReserva,
+    buildReservationFilter,
+    buildReservationSort,
+} = require('../services/reservation.service');
 const { parsePagination, buildMeta } = require('../utils/pagination');
 
 const getAllReservationsController = async (req, res, next) => {
     try {
         const { page, limit, skip } = parsePagination(req.query);
-        const esAdmin = req.user.rol === 'admin';
-
-        // Los usuarios ven las propias; admin puede filtrar por usuario.
-        const filter = {};
-        if (!esAdmin) {
-            filter.user = req.user.id;
-        } else if (req.query.user) {
-            filter.user = req.query.user;
-        }
-
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.resource) filter.resources = req.query.resource;
+        const filter = await buildReservationFilter(req.validatedQuery, req.user);
+        const sort = buildReservationSort(req.validatedQuery.sort);
 
         const [reservations, total] = await Promise.all([
-            findReservations(filter, { skip, limit }),
+            findReservations(filter, { skip, limit, sort }),
             countReservations(filter),
         ]);
 

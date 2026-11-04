@@ -12,7 +12,8 @@ const connectMongoDB = async () => {
     const MONGODB_CONNECTION_TIMEOUT = process.env.MONGODB_CONNECTION_TIMEOUT;
 
     try {
-        await mongoose.connect(`${MONGODB_CONNECTION_STRING}/${MONGODB_DATABASE_NAME}`, {
+        await mongoose.connect(MONGODB_CONNECTION_STRING, {
+            dbName: MONGODB_DATABASE_NAME,
             serverSelectionTimeoutMS: MONGODB_CONNECTION_TIMEOUT,
         });
         console.log("Conexion a mongo db establecida correctamente");

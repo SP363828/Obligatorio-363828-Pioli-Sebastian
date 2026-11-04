@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "seed": "node src/scripts/seed.js"
+    "seed": "node src/scripts/seed.js",
+    "seed:demo": "node src/scripts/seed-demo.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

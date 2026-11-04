@@ -9,6 +9,7 @@ const {
 
 const { parsePagination, buildMeta } = require("../utils/pagination");
 const { uploadImage, deleteImage } = require("../services/cloudinary.service");
+const { findCategoryById } = require("../repositories/category.repository");
 
 const getAllResourcesController = async (req, res, next) => {
     try {
@@ -51,6 +52,10 @@ const getResourceController = async (req, res, next) => {
 
 const createResourceController = async (req, res, next) => {
     try {
+        if (!(await findCategoryById(req.body.category))) {
+            return res.status(404).json({ message: "La categoría no existe" });
+        }
+
         let imagenData = {};
 
         // req.file lo deja multer (upload.middleware) si vino una imagen.
@@ -73,6 +78,10 @@ const createResourceController = async (req, res, next) => {
 
 const updateResourceController = async (req, res, next) => {
     try {
+        if (!(await findCategoryById(req.body.category))) {
+            return res.status(404).json({ message: "La categoría no existe" });
+        }
+
         let imagenData = {};
 
         if (req.file) {

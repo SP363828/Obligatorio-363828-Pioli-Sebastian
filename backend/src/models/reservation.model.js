@@ -24,4 +24,7 @@ const reservationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// El listado filtra por usuario y ordena por fecha.
+reservationSchema.index({ user: 1, fechaInicio: 1 });
+
 module.exports = mongoose.model('Reservation', reservationSchema);

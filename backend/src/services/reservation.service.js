@@ -1,4 +1,4 @@
-const { findResourceById } = require('../repositories/resource.repository');
+const { findResourceById, findResourceIdsByName } = require('../repositories/resource.repository');
 const {
   findActiveByResources,
   findActiveByUser,
@@ -100,6 +100,39 @@ async function chequearLimitePlan({ userId, plan, resourceIds, bloques }, exclud
   }
 }
 
+// Arma el filtro de Mongo del listado a partir de la query ya validada por Joi.
+async function buildReservationFilter(query, usuario) {
+  const filter = {};
+
+  // Los usuarios ven solo las propias; el admin puede filtrar por usuario.
+  if (usuario.rol !== 'admin') filter.user = usuario.id;
+  else if (query.user) filter.user = query.user;
+
+  if (query.status) filter.status = query.status;
+  if (query.tipoRecurrencia) filter.tipoRecurrencia = query.tipoRecurrencia;
+
+  // Rango: la reserva se solapa si empieza antes de "hasta" y termina después de "desde".
+  if (query.hasta) filter.fechaInicio = { $lte: query.hasta };
+  if (query.desde) filter.fechaFin = { $gte: query.desde };
+
+  if (query.q) {
+    // Se escapa el texto para que el usuario no pueda inyectar una regex.
+    const texto = query.q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const ids = await findResourceIdsByName(new RegExp(texto, 'i'));
+    const permitidos = query.resource ? ids.filter((id) => id.toString() === query.resource) : ids;
+    filter.resources = { $in: permitidos };
+  } else if (query.resource) {
+    filter.resources = query.resource;
+  }
+
+  return filter;
+}
+
+// "-fechaInicio" → { fechaInicio: -1 }
+function buildReservationSort(sort = 'fechaInicio') {
+  return sort.startsWith('-') ? { [sort.slice(1)]: -1 } : { [sort]: 1 };
+}
+
 async function crearReserva({
   userId,
   plan,
@@ -153,4 +186,4 @@ async function actualizarReserva(id, {
   });
 }
 
-module.exports = { crearReserva, actualizarReserva };
+module.exports = { crearReserva, actualizarReserva, buildReservationFilter, buildReservationSort };
