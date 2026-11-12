@@ -9,6 +9,7 @@ const notFound = require('./middlewares/notFound');
 const errorHandler = require('./middlewares/errorHandler');
 const { generalLimiter } = require('./middlewares/rate-Limit.middleware');
 const mongoSanitizeMiddleware = require('./middlewares/mongoSanitize.middleware');
+const xssMiddleware = require('./middlewares/xss.middleware');
 
 // --- Chequeo de variables de entorno obligatorias ---
 const requiredEnvVars = [
@@ -50,6 +51,8 @@ app.use(
 app.use(generalLimiter);
 app.use(express.json({ limit: '1mb' }));
 app.use(mongoSanitizeMiddleware);
+// Limpia HTML/scripts del body y la query antes de que lleguen a los controladores.
+app.use(xssMiddleware);
 
 // La conexión a Mongo se asegura dentro de router (dbMiddleware, primera
 // línea de src/routes/index.js) -- no acá, porque en serverless no

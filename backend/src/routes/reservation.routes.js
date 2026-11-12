@@ -14,8 +14,12 @@ const payloadMiddleware = require('../middlewares/payload.middleware');
 const queryMiddleware = require('../middlewares/query.middleware');
 const reservationSchema = require('../models/schemas/reservation.schema');
 const reservationQuerySchema = require('../models/schemas/reservationQuery.schema');
+const { limpiarParam } = require('../middlewares/xss.middleware');
 
 // La autenticación se aplica en routes/index.js; el controlador verifica el acceso.
+
+// Limpia el parámetro :id (XSS) antes de llegar al controlador.
+router.param('id', limpiarParam);
 
 router.get('/', queryMiddleware(reservationQuerySchema), getAllReservationsController);
 
